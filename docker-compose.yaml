@@ -1,0 +1,47 @@
+services:
+
+  # Install postgres and create the party database.
+  postgres:
+    container_name: postgres
+    image: debezium/postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=partydb
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+
+  # Install postgres and create the party database.
+  parties-service:
+    container_name: parties-service
+    image: tinybank/parties-service:0.0.1 
+    ports:
+      - 8080:8080
+    #environment:
+    #  - HOST_DB=host.docker.internal
+    depends_on:
+      - postgres
+      
+  envoy:
+    image: envoyproxy/envoy:v1.29.0
+    ports:
+      - "15001:15001"
+    volumes:
+      - ./enovoy-config/envoy-config.yaml:/etc/envoy/envoy.yaml
+    depends_on:
+      - parties-service
+      - authz-http-service
+      
+  authz-http-service:
+    container_name: authz-http-service
+    build:
+      context: ./ext_authz/auth
+      dockerfile: ../node/Dockerfile   
+      target: node-http-auth
+    volumes:
+    - ./ext_authz/users.json:/etc/users.json
+    environment:
+    - USERS=/etc/users.json
+    ports:
+    - 9002:9002
+

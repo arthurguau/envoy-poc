@@ -1,0 +1,22 @@
+
+//-- # build parties-service image
+mvn spring-boot:build-image
+
+docker run --name parties-service -p 8080:8080 tinybank/parties-service:0.0.1 
+
+
+//-- # parties service
+ curl localhost:8080/parties/1 -v
+ curl localhost:8080/parties/1 -H "Authorization: Bearer token1"  -v
+
+
+//-- # Authorization service
+curl localhost:9002/services -H "Authorization: Bearer token1"  -v
+
+
+//-- # Envoy proxy
+curl localhost:15001/parties/1 -v
+
+curl localhost:15001/parties/1 -H "Authorization: Bearer token1"  -v
+
+curl localhost:15001/parties/1 -H "Authorization: Bearer token4"  -v
