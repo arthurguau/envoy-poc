@@ -20,3 +20,29 @@ curl localhost:15001/parties/1 -v
 curl localhost:15001/parties/1 -H "Authorization: Bearer token1"  -v
 
 curl localhost:15001/parties/1 -H "Authorization: Bearer token4"  -v
+
+
+//-- # Lua script: 
+
+https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/lua_filter#config-http-filters-lua
+
+
+
+
+function envoy_on_request(request_handle)
+  -- Make an HTTP call to an upstream host with the following headers, body, and timeout.
+  local headers, body = request_handle:httpCall(
+  "lua_cluster",
+  {
+    [":method"] = "POST",
+    [":path"] = "/",
+    [":authority"] = "lua_cluster"
+  },
+  "hello world",
+  5000)
+
+  -- Add information from the HTTP call into the headers that are about to be sent to the next
+  -- filter in the filter chain.
+  request_handle:headers():add("upstream_foo", headers["foo"])
+  request_handle:headers():add("upstream_body_size", #body)
+end
