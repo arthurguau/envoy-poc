@@ -9,9 +9,26 @@ docker run --name parties-service -p 8080:8080 tinybank/parties-service:0.0.1
  curl localhost:8080/parties/1 -v
  curl localhost:8080/parties/1 -H "Authorization: Bearer token1"  -v
 
+//-- # parties service
+ curl localhost:8080/parties/1 -v
+ curl localhost:8080/parties/1 -H "Authorization: Bearer token1"  -v
+
 
 //-- # Authorization service
 curl localhost:9002/services -H "Authorization: Bearer token1"  -v
+
+
+//-- # build tinybank-jwt image
+mvn spring-boot:build-image
+
+docker run --name tiny-jwt -p 8089:8089 tinybank/tinybank-jwt:0.0.1-SNAPSHOT
+
+http://localhost:8089/api/jwt/swagger-ui.html
+
+username: arthur
+password: dummy
+
+curl -X POST "http://localhost:8089/api/jwt/authenticate" -H "accept: */*" -H "Content-Type: application/json" -d "{ \"password\": \"dummy\", \"username\": \"arthur\"}"
 
 
 //-- # Envoy proxy
@@ -25,8 +42,6 @@ curl localhost:15001/parties/1 -H "Authorization: Bearer token4"  -v
 //-- # Lua script: 
 
 https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/lua_filter#config-http-filters-lua
-
-
 
 
 function envoy_on_request(request_handle)

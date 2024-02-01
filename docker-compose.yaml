@@ -27,7 +27,7 @@ services:
     ports:
       - "15001:15001"
     volumes:
-      - ./enovoy-config/envoy-config.yaml:/etc/envoy/envoy.yaml
+      - ./enovoy-config/envoy-config-test.yaml:/etc/envoy/envoy.yaml
     depends_on:
       - parties-service
       - authz-http-service
