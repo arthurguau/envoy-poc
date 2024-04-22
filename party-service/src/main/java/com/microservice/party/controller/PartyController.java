@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.microservice.party.dto.EmailChangeDTO;
 import com.microservice.party.dto.EnrollPartyDTO;
 import com.microservice.party.dto.PartyDTO;
 import com.microservice.party.service.PartyService;
@@ -92,13 +91,21 @@ public class PartyController {
     @PutMapping(value = "/parties/{partyId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public PartyDTO updateParty(@RequestHeader("Authorisation") String jwt, 
     		@RequestHeader("Authorization") String token, @PathVariable Integer partyId, @RequestBody EnrollPartyDTO partyDTO) throws Exception {
-        return this.partyService.updateParty(partyId, partyDTO);
+    	
+    	log.info("==> incoming jwt token: " + jwt);
+    	log.info("==> incoming token: " + token);
+    	
+    	return this.partyService.updateParty(partyId, partyDTO);
     }
     
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/parties/{partyId}")
     public void deleteParty(@RequestHeader("Authorisation") String jwt, 
     		@RequestHeader("Authorization") String token, @PathVariable Integer partyId)  throws Exception  {
+    	
+    	log.info("==> incoming jwt token: " + jwt);
+    	log.info("==> incoming token: " + token);
+    	
     	this.partyService.deleteParty(partyId);
     }
 }
