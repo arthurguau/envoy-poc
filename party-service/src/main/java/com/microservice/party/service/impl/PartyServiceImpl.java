@@ -1,8 +1,15 @@
 package com.microservice.party.service.impl;
 
+import java.util.Optional;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import com.microservice.party.dao.PartyRepository;
 import com.microservice.party.dao.entities.PartyEntity;
-import com.microservice.party.dto.EmailChangeDTO;
 import com.microservice.party.dto.EnrollPartyDTO;
 import com.microservice.party.dto.PartyDTO;
 import com.microservice.party.dto.PartyMapper;
@@ -10,11 +17,6 @@ import com.microservice.party.outbox.EventPublisher;
 import com.microservice.party.service.PartyService;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
-import java.util.Optional;
 
 /**
  * Service Implementation that fetches / acts on PartyDTO related data.
@@ -97,16 +99,32 @@ public class PartyServiceImpl implements PartyService {
      */
     @Override
     @Transactional
-    public PartyDTO updatePartyEmail(Integer partyId, EmailChangeDTO partyEmail) throws Exception {
-        log.info("Update Email to '{}' for PartyId: {}", partyEmail.getEmail(),  partyId);
+    public PartyDTO updateParty(Integer partyId, EnrollPartyDTO party) throws Exception {
+        log.info("Update party to '{}' for PartyId: {}", party.getEmail(),  partyId);
 
         PartyEntity partyEntity = partyRepository.getOne(partyId);
-        partyEntity.setEmail(partyEmail.getEmail());
+        partyEntity.setName(party.getName());
+        partyEntity.setAddress(party.getAddress());
+        partyEntity.setEmail(party.getEmail());
         partyRepository.save(partyEntity);
 
         //Publish the event
-        eventPublisher.fire(EventUtils.createUpdateEmailEvent(partyEntity));
+        eventPublisher.fire(EventUtils.createUpdateEvent(partyEntity));
 
         return PartyMapper.INSTANCE.partyEntityToDTO(partyEntity);
     }
+    
+    /**
+     * 
+     * @param partyId
+     * @throws Exception
+     */
+    public void deleteParty(@PathVariable Integer partyId) throws Exception{
+    	PartyEntity partyEntity = partyRepository.findById(partyId).orElseThrow(Exception::new);
+    	partyRepository.deleteById(partyId);
+    	
+        //Publish the event
+        eventPublisher.fire(EventUtils.deleteEvent(partyEntity));
+    }
+
 }

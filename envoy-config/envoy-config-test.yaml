@@ -26,9 +26,6 @@ static_resources:
           - name: envoy.filters.http.ext_authz
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
-                     //type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz     
-                     //type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
-              
               transport_api_version: V3
               http_service:
                 server_uri:
@@ -39,6 +36,15 @@ static_resources:
                   allowed_upstream_headers:
                     patterns:
                     - exact: x-current-user
+                    
+          - name: envoy.filters.http.lua
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+              inline_code: |
+                function envoy_on_request(request_handle)
+                  request_handle:logInfo("Hello Funny Gorilla!")
+                end                                    
+                    
           - name: envoy.filters.http.router
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router

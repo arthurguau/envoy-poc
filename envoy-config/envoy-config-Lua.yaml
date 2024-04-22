@@ -26,9 +26,6 @@ static_resources:
           - name: envoy.filters.http.ext_authz
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
-                     //type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz     
-                     //type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
-              
               transport_api_version: V3
               http_service:
                 server_uri:
@@ -39,6 +36,35 @@ static_resources:
                   allowed_upstream_headers:
                     patterns:
                     - exact: x-current-user
+                    
+          - name: lua_filter_with_JWT
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+              default_source_code:
+                inline_string:
+                  -- Called on the request path.
+                  function envoy_on_request(request_handle)
+                      -- Make an HTTP call to an upstream host with the following headers, body, and timeout.
+                      local headers, body = request_handle:httpCall(
+                      "lua_cluster",
+                      {
+                        [":method"] = "POST",
+                        [":path"] = "/",
+                        [":authority"] = "lua_cluster"
+                      },
+                      "hello world",
+                      5000)
+
+                      -- Add information from the HTTP call into the headers that are about to be sent to the next
+                      -- filter in the filter chain.
+                      request_handle:headers():add("upstream_foo", headers["foo"])
+                      request_handle:headers():add("upstream_body_size", #body)
+                  end
+                  -- Called on the response path.
+                  function envoy_on_response(response_handle)
+                    -- Do something.
+                  end       
+
           - name: envoy.filters.http.router
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router

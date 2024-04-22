@@ -1,3 +1,17 @@
+//-- ################################################################# --//
+     1. postgre databae
+//-- ################################################################# --//
+
+//-- # sping up postgre databae
+docker pull postgres:15
+
+docker run -d -p 5432:5432 --name postgres-container -e POSTGRES_DB=partydb -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password  postgres:15
+
+
+
+//-- ################################################################# --//
+     2. party service
+//-- ################################################################# --//
 
 //-- # build parties-service image
 mvn spring-boot:build-image
@@ -6,17 +20,22 @@ docker run --name parties-service -p 8080:8080 tinybank/parties-service:0.0.1
 
 
 //-- # parties service
- curl localhost:8080/parties/1 -v
- curl localhost:8080/parties/1 -H "Authorization: Bearer token1"  -v
+curl localhost:8080/parties/1 -v
+curl localhost:8080/parties/1  -H "Authorization: Bearer token1" -H "Authorisation: token2" -v
 
-//-- # parties service
- curl localhost:8080/parties/1 -v
- curl localhost:8080/parties/1 -H "Authorization: Bearer token1"  -v
+curl localhost:8080/parties/1 -H "Authorisation: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhcnRodXIiLCJleHAiOjE3MDc5MTE3MzUsImlhdCI6MTcwNzMwNjkzNX0.v4jnRb11_g215efUxrvuzr02oszx3-70fFiHuWVxz5ral0elMdibbLq43tPbVh-4DW5SNMRp-jS8fK-M3fRRRg" -H "Authorization: Bearer token1" -v
+
+curl -X POST "http://localhost:8080/parties/" -H "accept: */*" -H "Content-Type: application/json" -H "Authorization: Bearer token1" -H "Authorisation: token2" -d '{ "name":"Song", "email":"arthur@hotmail.com", "address":"Roseville"}' -v
+
+curl -X PUT "http://localhost:8080/parties/1" -H "accept: */*" -H "Content-Type: application/json" -H "Authorization: Bearer token1" -H "Authorisation: token2" -d '{"name":"Song", "email":"arthur@hotmail.com", "address":"Sydney"}' -v
 
 
-//-- # Authorization service
-curl localhost:9002/services -H "Authorization: Bearer token1"  -v
+curl -X DELETE "http://localhost:8080/parties/4" -H "accept: */*" -H "Content-Type: application/json" -H "Authorization: Bearer token1" -H "Authorisation: token2"
 
+
+//-- ################################################################# --//
+     3. JWT service
+//-- ################################################################# --//
 
 //-- # build tinybank-jwt image
 mvn spring-boot:build-image
@@ -30,6 +49,10 @@ password: dummy
 
 curl -X POST "http://localhost:8089/api/jwt/authenticate" -H "accept: */*" -H "Content-Type: application/json" -d "{ \"password\": \"dummy\", \"username\": \"arthur\"}"
 
+
+//-- ################################################################# --//
+     4. Envoy proxy
+//-- ################################################################# --//
 
 //-- # Envoy proxy
 curl localhost:15001/parties/1 -v
@@ -61,3 +84,10 @@ function envoy_on_request(request_handle)
   request_handle:headers():add("upstream_foo", headers["foo"])
   request_handle:headers():add("upstream_body_size", #body)
 end
+
+
+//-- # Party-service
+
+curl localhost:8080/parties/1  -H "Authorization: Bearer token1" -H "Authorisation: token2"
+
+

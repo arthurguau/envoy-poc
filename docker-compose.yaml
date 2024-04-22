@@ -3,7 +3,7 @@ services:
   # Install postgres and create the party database.
   postgres:
     container_name: postgres
-    image: debezium/postgres
+    image: postgres:16.2
     ports:
       - 5432:5432
     environment:

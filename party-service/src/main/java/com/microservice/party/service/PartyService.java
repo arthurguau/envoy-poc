@@ -1,5 +1,7 @@
 package com.microservice.party.service;
 
+import org.springframework.web.bind.annotation.PathVariable;
+
 import com.microservice.party.dto.EmailChangeDTO;
 import com.microservice.party.dto.EnrollPartyDTO;
 import com.microservice.party.dto.PartyDTO;
@@ -35,5 +37,12 @@ public interface PartyService {
      * @param partyEmail
      * @return PartyDTO
      */
-    PartyDTO updatePartyEmail(Integer partyId, EmailChangeDTO partyEmail) throws Exception;
+    PartyDTO updateParty(Integer partyId, EnrollPartyDTO party) throws Exception;
+    
+    /**
+     * 
+     * @param partyId
+     * @throws Exception
+     */
+    void deleteParty(@PathVariable Integer partyId) throws Exception;
 }

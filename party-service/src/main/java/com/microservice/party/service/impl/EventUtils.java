@@ -36,7 +36,7 @@ public class EventUtils {
      * @param partyEntity
      * @return OutboxEvent
      */
-    public static OutboxEvent createUpdateEmailEvent(PartyEntity partyEntity) {
+    public static OutboxEvent createUpdateEvent(PartyEntity partyEntity) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode jsonNode = mapper.createObjectNode()
                 .put("partyId", partyEntity.getPartyId())
@@ -48,4 +48,24 @@ public class EventUtils {
                 jsonNode
         );
     }
+    
+    /**
+     * Create the event object to be published when student email is changed.
+     *
+     * @param partyEntity
+     * @return OutboxEvent
+     */
+    public static OutboxEvent deleteEvent(PartyEntity partyEntity) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode jsonNode = mapper.createObjectNode()
+                .put("partyId", partyEntity.getPartyId())
+                .put("email",partyEntity.getEmail());
+
+        return new OutboxEvent(
+                partyEntity.getPartyId(),
+                "PARTY_DELETED",
+                jsonNode
+        );
+    }    
+    
 }
